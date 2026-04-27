@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoverEase</title>
+
+<style>
+body { margin:0; font-family: Arial; background:#f1f3f6; }
+header { background:#2874f0; color:white; padding:12px; text-align:center; font-size:20px; }
+
+.products { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px; }
+.card { background:white; padding:10px; border-radius:8px; }
+.card img { width:100%; border-radius:8px; }
+
+.btn { width:100%; padding:8px; margin-top:5px; border:none; border-radius:5px; color:white; }
+.cart-btn { background:#fb641b; }
+
+.footer { position:fixed; bottom:0; width:100%; background:white; padding:10px; }
+
+.checkout-box {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:white;
+  padding:20px;
+  overflow:auto;
+}
+
+input, textarea, select {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>🛍️ CoverEase</header>
+
+<div class="products">
+
+  <div class="card">
+    <img src="images/washing-machine-cover.jpg">
+    <h4>Front Load Cover</h4>
+    <p>₹399</p>
+    <button class="btn cart-btn" onclick="addToCart('Front Load Cover',399)">Add</button>
+  </div>
+
+  <div class="card">
+    <img src="images/table-cover-leaf.jpg">
+    <h4>Leaf Table Cover</h4>
+    <p>₹299</p>
+    <button class="btn cart-btn" onclick="addToCart('Leaf Table Cover',299)">Add</button>
+  </div>
+
+</div>
+
+<div class="footer">
+  <button class="btn cart-btn" onclick="openCheckout()">Checkout</button>
+</div>
+
+<!-- CHECKOUT FORM -->
+<div class="checkout-box" id="checkoutBox">
+
+  <h2>Checkout</h2>
+
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="tel" id="phone" placeholder="Phone Number">
+  <textarea id="address" placeholder="Full Address"></textarea>
+
+  <select id="payment">
+    <option value="COD">Cash on Delivery</option>
+    <option value="UPI">UPI Payment</option>
+  </select>
+
+  <button class="btn cart-btn" onclick="placeOrder()">Place Order</button>
+  <button onclick="closeCheckout()">Close</button>
+
+</div>
+
+<script>
+let cart = [];
+
+function addToCart(name, price) {
+  cart.push({name, price});
+  alert(name + " added");
+}
+
+function openCheckout() {
+  document.getElementById("checkoutBox").style.display = "block";
+}
+
+function closeCheckout() {
+  document.getElementById("checkoutBox").style.display = "none";
+}
+
+function placeOrder() {
+  let name = document.getElementById("name").value;
+  let phone = document.getElementById("phone").value;
+  let address = document.getElementById("address").value;
+  let payment = document.getElementById("payment").value;
+
+  let msg = "New Order:%0A";
+  msg += "Name: " + name + "%0A";
+  msg += "Phone: " + phone + "%0A";
+  msg += "Address: " + address + "%0A";
+  msg += "Payment: " + payment + "%0A";
+
+  msg += "Items:%0A";
+  cart.forEach(i => {
+    msg += i.name + " - ₹" + i.price + "%0A";
+  });
+
+  window.open("https://wa.me/919555128890?text=" + msg);
+}
+</script>
+
+</body>
+</html>
