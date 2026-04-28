@@ -1,203 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AddaLive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Gurukul</title>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  text-align: center;
+  background: linear-gradient(to bottom, #fff5e6, #ffe0b3);
+}
 
-  <style>
-    body { margin:0; font-family:Arial; background:#0f0f0f; color:white;}
-    header { padding:15px; background:#1a1a1a; text-align:center; font-weight:bold;}
-    #login { text-align:center; padding:20px;}
-    #app { display:none;}
-    #rooms { display:flex; overflow-x:auto; padding:10px;}
-    .room { background:#222; padding:10px; margin-right:10px; border-radius:20px; cursor:pointer;}
-    #chat { height:55vh; overflow:auto; padding:10px;}
-    .msg { background:#1f1f1f; padding:10px; margin:5px 0; border-radius:10px;}
-    .actions { font-size:12px; margin-top:5px;}
-    .like, .report { margin-right:10px; cursor:pointer;}
-    #inputArea { position:fixed; bottom:0; width:100%; display:flex; background:#111; padding:10px;}
-    input { flex:1; padding:10px; border:none;}
-    button { padding:10px; background:orange; border:none;}
-  </style>
+h1 {
+  color: #ff6600;
+}
+
+.container {
+  padding: 15px;
+}
+
+.card {
+  margin: 15px;
+  padding: 20px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+img {
+  width: 140px;
+  margin: 10px;
+  border-radius: 15px;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background: #ff6600;
+  color: white;
+}
+
+.game img {
+  width: 100px;
+  cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-<header>🔥 AddaLive</header>
+<h1>🪔 Little Gurukul</h1>
 
-<div id="login">
-  <input id="phone" placeholder="+91XXXXXXXXXX"><br><br>
-  <button onclick="sendOTP()">Send OTP</button><br><br>
-  <input id="otp" placeholder="Enter OTP"><br><br>
-  <button onclick="verifyOTP()">Login</button>
-</div>
+<!-- LEVEL 1 -->
+<div class="container">
+  <h2>🌼 Level 1: Suno</h2>
 
-<div id="app">
-  <div id="rooms">
-    <div class="room" onclick="switchRoom('general')">General</div>
-    <div class="room" onclick="switchRoom('office')">Office</div>
-    <div class="room" onclick="switchRoom('love')">Love</div>
-    <div class="room" onclick="switchRoom('night')">Night</div>
-    <div class="room" onclick="switchRoom('trending')">🔥 Trending</div>
+  <div class="card">
+    <img src="https://i.imgur.com/3QZQZ9y.png">
+    <p>Ram</p>
+    <button onclick="speak('Yeh Ram hai. Ram bahut acche raja the.')">🔊</button>
   </div>
 
-  <div id="chat"></div>
+  <div class="card">
+    <img src="https://i.imgur.com/2DhmtJ4.png">
+    <p>Hanuman</p>
+    <button onclick="speak('Yeh Hanuman hai. Hanuman bahut balwan the.')">🔊</button>
+  </div>
 
-  <div id="inputArea">
-    <input id="msg" placeholder="Say something...">
-    <button onclick="sendMsg()">Send</button>
+  <div class="card">
+    <img src="https://i.imgur.com/5b6pX8L.png">
+    <p>Krishna</p>
+    <button onclick="speak('Yeh Krishna hai. Krishna makkhan khate the.')">🔊</button>
+  </div>
+</div>
+
+<!-- LEVEL 2 GAME -->
+<div class="container">
+  <h2>🎯 Level 2: Pehchano</h2>
+  <p id="question">Hanuman ko dhoondo</p>
+
+  <div class="game">
+    <img src="https://i.imgur.com/3QZQZ9y.png" onclick="checkAnswer('ram')">
+    <img src="https://i.imgur.com/2DhmtJ4.png" onclick="checkAnswer('hanuman')">
+    <img src="https://i.imgur.com/5b6pX8L.png" onclick="checkAnswer('krishna')">
+  </div>
+
+  <p id="result"></p>
+</div>
+
+<!-- LEVEL 3 STORY -->
+<div class="container">
+  <h2>🎬 Level 3: Kahani</h2>
+
+  <div class="card">
+    <p id="storyText">Ram jungle mein ja rahe the...</p>
+    <button onclick="nextStory()">➡️ Aage</button>
   </div>
 </div>
 
 <script>
-// 🔑 FIREBASE CONFIG (PASTE YOURS HERE)
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_ID"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let room = "general";
-let userId = null;
-let username = null;
-let confirmationResult;
-
-// 🚫 BAD WORD FILTER
-const bannedWords = ["mc","bc","gali1","gali2","abuse"];
-
-function isClean(text) {
-  let lower = text.toLowerCase();
-  return !bannedWords.some(word => lower.includes(word));
+// VOICE
+function speak(text) {
+  let speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "hi-IN";
+  speech.rate = 0.8;
+  window.speechSynthesis.speak(speech);
 }
 
-// 📱 OTP LOGIN
-function sendOTP() {
-  const phone = document.getElementById('phone').value;
-  const appVerifier = new firebase.auth.RecaptchaVerifier('login', { size: 'invisible' });
+// LEVEL 2 GAME
+function checkAnswer(ans) {
+  let result = document.getElementById("result");
 
-  auth.signInWithPhoneNumber(phone, appVerifier)
-    .then(res => confirmationResult = res)
-    .catch(err => alert(err.message));
-}
-
-function verifyOTP() {
-  const otp = document.getElementById('otp').value;
-
-  confirmationResult.confirm(otp).then(user => {
-    userId = user.user.uid;
-
-    db.collection("users").doc(userId).get().then(doc => {
-      if (!doc.exists) {
-        username = "User" + Math.floor(Math.random()*9999);
-        db.collection("users").doc(userId).set({ username });
-      } else {
-        username = doc.data().username;
-      }
-
-      document.getElementById('login').style.display = "none";
-      document.getElementById('app').style.display = "block";
-      loadMessages();
-    });
-  }).catch(err => alert("Invalid OTP"));
-}
-
-// 🧠 ROOM SWITCH
-function switchRoom(r) {
-  room = r;
-  loadMessages();
-}
-
-// 💬 SEND MESSAGE
-function sendMsg() {
-  const text = document.getElementById('msg').value;
-  if (!text) return;
-
-  if (!isClean(text)) {
-    alert("⚠️ Keep it clean");
-    return;
-  }
-
-  db.collection("messages").add({
-    text,
-    user: username,
-    room,
-    likes: 0,
-    reports: 0,
-    time: Date.now()
-  });
-
-  document.getElementById('msg').value = "";
-}
-
-// ❤️ LIKE
-function likeMsg(id, likes) {
-  db.collection("messages").doc(id).update({ likes: likes + 1 });
-}
-
-// 🚫 REPORT + AUTO DELETE
-function reportMsg(id, reports) {
-  let newReports = reports + 1;
-
-  if (newReports >= 3) {
-    db.collection("messages").doc(id).delete();
+  if(ans === "hanuman") {
+    result.innerHTML = "🎉 Sahi jawab!";
+    speak("Bahut badhiya!");
   } else {
-    db.collection("messages").doc(id).update({ reports: newReports });
+    result.innerHTML = "❌ Phir se koshish karo";
+    speak("Dobara try karo");
   }
 }
 
-// 🔥 LOAD MESSAGES
-function loadMessages() {
-  let query;
+// LEVEL 3 STORY
+let story = [
+  "Ram jungle mein ja rahe the...",
+  "Tab Hanuman unse mile...",
+  "Dono acche dost ban gaye...",
+  "Hanuman ne Ram ki madad ki..."
+];
 
-  if (room === "trending") {
-    query = db.collection("messages").orderBy("likes", "desc").limit(20);
+let index = 0;
+
+function nextStory() {
+  index++;
+  if(index < story.length) {
+    document.getElementById("storyText").innerText = story[index];
+    speak(story[index]);
   } else {
-    query = db.collection("messages")
-      .where("room", "==", room)
-      .orderBy("time");
+    index = 0;
   }
-
-  query.onSnapshot(snapshot => {
-    let chat = "";
-
-    snapshot.forEach(doc => {
-      let d = doc.data();
-
-      chat += `
-      <div class="msg">
-        <b>${d.user}</b><br/>
-        ${d.text}
-        <div class="actions">
-          <span class="like" onclick="likeMsg('${doc.id}', ${d.likes})">❤️ ${d.likes}</span>
-          <span class="report" onclick="reportMsg('${doc.id}', ${d.reports})">🚫 Report</span>
-        </div>
-      </div>`;
-    });
-
-    document.getElementById('chat').innerHTML = chat;
-  });
 }
-
-// ❓ ADMIN QUESTION (MANUAL USE IN CONSOLE)
-function postQuestion(q) {
-  db.collection("messages").add({
-    text: "❓ " + q,
-    user: "Admin",
-    room: "general",
-    likes: 0,
-    reports: 0,
-    time: Date.now()
-  });
-}
-
 </script>
 
 </body>
