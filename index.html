@@ -13,136 +13,126 @@ body {
   background: linear-gradient(to bottom, #fff5e6, #ffe0b3);
 }
 
-h1 {
-  color: #ff6600;
-}
+h1 { color: #ff6600; }
 
-.container {
-  padding: 15px;
-}
-
-.card {
-  margin: 15px;
-  padding: 20px;
-  border-radius: 20px;
-  background: white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+.container { padding: 15px; }
 
 img {
-  width: 140px;
+  width: 100px;
   margin: 10px;
   border-radius: 15px;
-}
-
-button {
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background: #ff6600;
-  color: white;
-}
-
-.game img {
-  width: 100px;
   cursor: pointer;
+  transition: transform 0.2s;
 }
+
+img:active {
+  transform: scale(1.2);
+}
+
+.glow {
+  box-shadow: 0 0 20px gold;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
 </style>
 </head>
 
 <body>
 
 <h1>🪔 Little Gurukul</h1>
+<h2>⭐ Stars: <span id="stars">0</span></h2>
 
-<!-- LEVEL 1 -->
+<audio id="bgMusic" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
+
+<button onclick="startMusic()">▶️ Start Music</button>
+
 <div class="container">
-  <h2>🌼 Level 1: Suno</h2>
-
-  <div class="card">
-    <img src="https://i.imgur.com/3QZQZ9y.png">
-    <p>Ram</p>
-    <button onclick="speak('Yeh Ram hai. Ram bahut acche raja the.')">🔊</button>
-  </div>
-
-  <div class="card">
-    <img src="https://i.imgur.com/2DhmtJ4.png">
-    <p>Hanuman</p>
-    <button onclick="speak('Yeh Hanuman hai. Hanuman bahut balwan the.')">🔊</button>
-  </div>
-
-  <div class="card">
-    <img src="https://i.imgur.com/5b6pX8L.png">
-    <p>Krishna</p>
-    <button onclick="speak('Yeh Krishna hai. Krishna makkhan khate the.')">🔊</button>
-  </div>
-</div>
-
-<!-- LEVEL 2 GAME -->
-<div class="container">
-  <h2>🎯 Level 2: Pehchano</h2>
-  <p id="question">Hanuman ko dhoondo</p>
-
-  <div class="game">
-    <img src="https://i.imgur.com/3QZQZ9y.png" onclick="checkAnswer('ram')">
-    <img src="https://i.imgur.com/2DhmtJ4.png" onclick="checkAnswer('hanuman')">
-    <img src="https://i.imgur.com/5b6pX8L.png" onclick="checkAnswer('krishna')">
-  </div>
-
-  <p id="result"></p>
-</div>
-
-<!-- LEVEL 3 STORY -->
-<div class="container">
-  <h2>🎬 Level 3: Kahani</h2>
-
-  <div class="card">
-    <p id="storyText">Ram jungle mein ja rahe the...</p>
-    <button onclick="nextStory()">➡️ Aage</button>
-  </div>
+  <h3 id="question">Loading...</h3>
+  <div class="grid" id="gameArea"></div>
 </div>
 
 <script>
+
+let allCharacters = [
+  {name: "ram", img: "https://i.imgur.com/3QZQZ9y.png"},
+  {name: "hanuman", img: "https://i.imgur.com/2DhmtJ4.png"},
+  {name: "krishna", img: "https://i.imgur.com/5b6pX8L.png"},
+  {name: "shiva", img: "https://i.imgur.com/8RKXAIV.png"} // locked
+];
+
+let unlocked = 3;
+let stars = 0;
+let correctAnswer;
+
+// MUSIC
+function startMusic() {
+  document.getElementById("bgMusic").play();
+}
+
 // VOICE
 function speak(text) {
   let speech = new SpeechSynthesisUtterance(text);
   speech.lang = "hi-IN";
-  speech.rate = 0.8;
+  speech.rate = 0.9;
   window.speechSynthesis.speak(speech);
 }
 
-// LEVEL 2 GAME
-function checkAnswer(ans) {
-  let result = document.getElementById("result");
+// SHUFFLE
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
 
-  if(ans === "hanuman") {
-    result.innerHTML = "🎉 Sahi jawab!";
-    speak("Bahut badhiya!");
+// LOAD GAME
+function loadGame() {
+  let current = allCharacters.slice(0, unlocked);
+  let shuffled = shuffle([...current]);
+
+  let random = shuffled[Math.floor(Math.random()*shuffled.length)];
+  correctAnswer = random.name;
+
+  document.getElementById("question").innerText = random.name + " ko dhoondo";
+  speak(random.name + " ko dhoondo");
+
+  let html = "";
+  shuffled.forEach(c => {
+    html += `<img src="${c.img}" onclick="check('${c.name}', this)">`;
+  });
+
+  document.getElementById("gameArea").innerHTML = html;
+}
+
+// CHECK
+function check(name, el) {
+  if(name === correctAnswer) {
+    stars++;
+    document.getElementById("stars").innerText = stars;
+
+    el.classList.add("glow");
+
+    speak("Shabash!");
+
+    // UNLOCK SYSTEM
+    if(stars === 5 && unlocked < allCharacters.length) {
+      unlocked++;
+      speak("Naya character unlock hua!");
+    }
+
+    setTimeout(loadGame, 800);
+
   } else {
-    result.innerHTML = "❌ Phir se koshish karo";
     speak("Dobara try karo");
   }
 }
 
-// LEVEL 3 STORY
-let story = [
-  "Ram jungle mein ja rahe the...",
-  "Tab Hanuman unse mile...",
-  "Dono acche dost ban gaye...",
-  "Hanuman ne Ram ki madad ki..."
-];
+// INIT
+loadGame();
 
-let index = 0;
-
-function nextStory() {
-  index++;
-  if(index < story.length) {
-    document.getElementById("storyText").innerText = story[index];
-    speak(story[index]);
-  } else {
-    index = 0;
-  }
-}
 </script>
 
 </body>
