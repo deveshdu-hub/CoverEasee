@@ -1,89 +1,203 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AddaLive - Real Talk</title>
+  <title>AddaLive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
   <style>
-    body { font-family: Arial; background:#111; color:white; text-align:center; }
-    input, button { padding:10px; margin:5px; width:80%; }
-    #chat { height:300px; overflow:auto; border:1px solid #444; padding:10px; }
+    body { margin:0; font-family:Arial; background:#0f0f0f; color:white;}
+    header { padding:15px; background:#1a1a1a; text-align:center; font-weight:bold;}
+    #login { text-align:center; padding:20px;}
+    #app { display:none;}
+    #rooms { display:flex; overflow-x:auto; padding:10px;}
+    .room { background:#222; padding:10px; margin-right:10px; border-radius:20px; cursor:pointer;}
+    #chat { height:55vh; overflow:auto; padding:10px;}
+    .msg { background:#1f1f1f; padding:10px; margin:5px 0; border-radius:10px;}
+    .actions { font-size:12px; margin-top:5px;}
+    .like, .report { margin-right:10px; cursor:pointer;}
+    #inputArea { position:fixed; bottom:0; width:100%; display:flex; background:#111; padding:10px;}
+    input { flex:1; padding:10px; border:none;}
+    button { padding:10px; background:orange; border:none;}
   </style>
 </head>
 
 <body>
 
-<h2>🔥 AddaLive</h2>
+<header>🔥 AddaLive</header>
 
 <div id="login">
-  <input type="text" id="phone" placeholder="+91XXXXXXXXXX">
-  <button onclick="sendOTP()">Send OTP</button>
-  <input type="text" id="otp" placeholder="Enter OTP">
+  <input id="phone" placeholder="+91XXXXXXXXXX"><br><br>
+  <button onclick="sendOTP()">Send OTP</button><br><br>
+  <input id="otp" placeholder="Enter OTP"><br><br>
   <button onclick="verifyOTP()">Login</button>
 </div>
 
-<div id="app" style="display:none;">
-  <h3>Room: General Talk</h3>
+<div id="app">
+  <div id="rooms">
+    <div class="room" onclick="switchRoom('general')">General</div>
+    <div class="room" onclick="switchRoom('office')">Office</div>
+    <div class="room" onclick="switchRoom('love')">Love</div>
+    <div class="room" onclick="switchRoom('night')">Night</div>
+    <div class="room" onclick="switchRoom('trending')">🔥 Trending</div>
+  </div>
+
   <div id="chat"></div>
-  <input id="msg" placeholder="Type something...">
-  <button onclick="sendMsg()">Send</button>
+
+  <div id="inputArea">
+    <input id="msg" placeholder="Say something...">
+    <button onclick="sendMsg()">Send</button>
+  </div>
 </div>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "YOUR_KEY",
-    authDomain: "YOUR_DOMAIN",
-    projectId: "YOUR_ID"
-  };
+// 🔑 FIREBASE CONFIG (PASTE YOURS HERE)
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_ID"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-  let confirmationResult;
+let room = "general";
+let userId = null;
+let username = null;
+let confirmationResult;
 
-  function sendOTP() {
-    const phone = document.getElementById('phone').value;
-    const appVerifier = new firebase.auth.RecaptchaVerifier('login', {
-      size: 'invisible'
-    });
+// 🚫 BAD WORD FILTER
+const bannedWords = ["mc","bc","gali1","gali2","abuse"];
 
-    auth.signInWithPhoneNumber(phone, appVerifier)
-      .then(res => confirmationResult = res);
-  }
+function isClean(text) {
+  let lower = text.toLowerCase();
+  return !bannedWords.some(word => lower.includes(word));
+}
 
-  function verifyOTP() {
-    const otp = document.getElementById('otp').value;
-    confirmationResult.confirm(otp).then(() => {
-      document.getElementById('login').style.display='none';
-      document.getElementById('app').style.display='block';
+// 📱 OTP LOGIN
+function sendOTP() {
+  const phone = document.getElementById('phone').value;
+  const appVerifier = new firebase.auth.RecaptchaVerifier('login', { size: 'invisible' });
+
+  auth.signInWithPhoneNumber(phone, appVerifier)
+    .then(res => confirmationResult = res)
+    .catch(err => alert(err.message));
+}
+
+function verifyOTP() {
+  const otp = document.getElementById('otp').value;
+
+  confirmationResult.confirm(otp).then(user => {
+    userId = user.user.uid;
+
+    db.collection("users").doc(userId).get().then(doc => {
+      if (!doc.exists) {
+        username = "User" + Math.floor(Math.random()*9999);
+        db.collection("users").doc(userId).set({ username });
+      } else {
+        username = doc.data().username;
+      }
+
+      document.getElementById('login').style.display = "none";
+      document.getElementById('app').style.display = "block";
       loadMessages();
     });
+  }).catch(err => alert("Invalid OTP"));
+}
+
+// 🧠 ROOM SWITCH
+function switchRoom(r) {
+  room = r;
+  loadMessages();
+}
+
+// 💬 SEND MESSAGE
+function sendMsg() {
+  const text = document.getElementById('msg').value;
+  if (!text) return;
+
+  if (!isClean(text)) {
+    alert("⚠️ Keep it clean");
+    return;
   }
 
-  function sendMsg() {
-    const text = document.getElementById('msg').value;
-    db.collection("messages").add({
-      text: text,
-      time: Date.now()
+  db.collection("messages").add({
+    text,
+    user: username,
+    room,
+    likes: 0,
+    reports: 0,
+    time: Date.now()
+  });
+
+  document.getElementById('msg').value = "";
+}
+
+// ❤️ LIKE
+function likeMsg(id, likes) {
+  db.collection("messages").doc(id).update({ likes: likes + 1 });
+}
+
+// 🚫 REPORT + AUTO DELETE
+function reportMsg(id, reports) {
+  let newReports = reports + 1;
+
+  if (newReports >= 3) {
+    db.collection("messages").doc(id).delete();
+  } else {
+    db.collection("messages").doc(id).update({ reports: newReports });
+  }
+}
+
+// 🔥 LOAD MESSAGES
+function loadMessages() {
+  let query;
+
+  if (room === "trending") {
+    query = db.collection("messages").orderBy("likes", "desc").limit(20);
+  } else {
+    query = db.collection("messages")
+      .where("room", "==", room)
+      .orderBy("time");
+  }
+
+  query.onSnapshot(snapshot => {
+    let chat = "";
+
+    snapshot.forEach(doc => {
+      let d = doc.data();
+
+      chat += `
+      <div class="msg">
+        <b>${d.user}</b><br/>
+        ${d.text}
+        <div class="actions">
+          <span class="like" onclick="likeMsg('${doc.id}', ${d.likes})">❤️ ${d.likes}</span>
+          <span class="report" onclick="reportMsg('${doc.id}', ${d.reports})">🚫 Report</span>
+        </div>
+      </div>`;
     });
-    document.getElementById('msg').value='';
-  }
 
-  function loadMessages() {
-    db.collection("messages").orderBy("time")
-      .onSnapshot(snapshot => {
-        let chat = "";
-        snapshot.forEach(doc => {
-          chat += "<p>" + doc.data().text + "</p>";
-        });
-        document.getElementById('chat').innerHTML = chat;
-      });
-  }
+    document.getElementById('chat').innerHTML = chat;
+  });
+}
+
+// ❓ ADMIN QUESTION (MANUAL USE IN CONSOLE)
+function postQuestion(q) {
+  db.collection("messages").add({
+    text: "❓ " + q,
+    user: "Admin",
+    room: "general",
+    likes: 0,
+    reports: 0,
+    time: Date.now()
+  });
+}
+
 </script>
 
 </body>
