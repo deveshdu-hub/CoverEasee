@@ -1,215 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SatyaSaroj Foundation</title>
+  <title>AddaLive - Real Talk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
-<style>
-{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-
-body{background:#f4f6f9;color:#333;}
-
-/ HERO SECTION /
-.hero{
-background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),
-url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac');
-background-size:cover;
-background-position:center;
-color:white;
-text-align:center;
-padding:60px 20px;
-}
-
-.hero img{
-width:100px;
-border-radius:50%;
-margin-bottom:15px;
-border:3px solid #fff;
-}
-
-.hero h1{font-size:28px;margin-bottom:10px;}
-.hero p{margin-bottom:10px;font-size:14px;}
-
-.hero button{
-margin-top:10px;
-padding:12px 20px;
-background:#f4c542;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
-
-/ NAV /
-nav{
-background:#111;
-padding:10px;
-text-align:center;
-}
-
-nav a{
-color:#fff;
-margin:0 10px;
-text-decoration:none;
-font-size:14px;
-}
-
-/ CONTENT /
-.container{padding:15px;}
-
-.card{
-background:#fff;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-h2{margin-bottom:10px;}
-
-ul{padding-left:18px;}
-
-.gallery{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
-
-.gallery img{
-width:100%;
-border-radius:8px;
-}
-
-button{
-background:#f4c542;
-border:none;
-padding:10px;
-border-radius:5px;
-font-weight:bold;
-cursor:pointer;
-width:100%;
-}
-
-/ FOOTER /
-footer{
-background:#111;
-color:#fff;
-text-align:center;
-padding:12px;
-margin-top:20px;
-}
-
-/ WHATSAPP */
-.whatsapp{
-position:fixed;
-bottom:15px;
-right:15px;
-background:#25D366;
-color:#fff;
-padding:14px;
-border-radius:50%;
-text-decoration:none;
-}
-</style>
-
+  <style>
+    body { font-family: Arial; background:#111; color:white; text-align:center; }
+    input, button { padding:10px; margin:5px; width:80%; }
+    #chat { height:300px; overflow:auto; border:1px solid #444; padding:10px; }
+  </style>
 </head>
 
 <body>
 
-<!-- 🔥 HERO SECTION -->
-<div class="hero">
+<h2>🔥 AddaLive</h2>
 
-<img src="logo.png">
-
-<h1>SatyaSaroj Foundation</h1>
-
-<p>NGO | Gonda, India</p>
-<p>Working for Social Welfare & Community Development</p>
-
-<button onclick="scrollToDonate()">Donate Now</button>
-
+<div id="login">
+  <input type="text" id="phone" placeholder="+91XXXXXXXXXX">
+  <button onclick="sendOTP()">Send OTP</button>
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <button onclick="verifyOTP()">Login</button>
 </div>
 
-<!-- NAV -->
-<nav>
-<a href="#about">About</a>
-<a href="#details">Details</a>
-<a href="#activities">Activities</a>
-<a href="#gallery">Gallery</a>
-<a href="#donate">Donate</a>
-</nav>
-
-<div class="container">
-
-<div class="card" id="about">
-<h2>About Us</h2>
-<p>
-SatyaSaroj Foundation is a registered NGO working for social welfare,
-education and community upliftment.
-</p>
+<div id="app" style="display:none;">
+  <h3>Room: General Talk</h3>
+  <div id="chat"></div>
+  <input id="msg" placeholder="Type something...">
+  <button onclick="sendMsg()">Send</button>
 </div>
-
-<div class="card" id="details">
-<h2>Organisation Details</h2>
-<p><b>CIN:</b> U85300UP2020NPL127686</p>
-<p><b>Incorporation:</b> 05/03/2020</p>
-<p><b>PAN:</b> AAECF0431D</p>
-<p><b>Status:</b> Active</p>
-
-<p><b>Address:</b><br>
-Fatehpur, Uttar Pradesh
-</p>
-</div>
-
-<div class="card" id="activities">
-<h2>Activities</h2>
-<ul>
-<li>Social welfare programs</li>
-<li>Education support</li>
-<li>CSR activities</li>
-<li>Health camps</li>
-</ul>
-
-<p>✔ 12A & 80G Certified</p>
-</div>
-
-<div class="card" id="gallery">
-<h2>Gallery</h2>
-
-<div class="gallery">
-<img src="img1.jpg">
-<img src="img2.jpg">
-<img src="img3.jpg">
-<img src="img4.jpg">
-</div>
-
-</div>
-
-<div class="card" id="donate">
-<h2>Support / Donate</h2>
-<p>Help us make a difference</p>
-
-<button onclick="donate()">Donate Now</button>
-
-</div>
-
-</div>
-
-<footer>
-<p>© 2026 SatyaSaroj Foundation</p>
-</footer>
-
-<a class="whatsapp" href="https://wa.me/919999999999">💬</a>
 
 <script>
-function donate(){
-alert("Contact us for donation");
-}
+  const firebaseConfig = {
+    apiKey: "YOUR_KEY",
+    authDomain: "YOUR_DOMAIN",
+    projectId: "YOUR_ID"
+  };
 
-function scrollToDonate(){
-document.getElementById("donate").scrollIntoView({behavior:'smooth'});
-}
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let confirmationResult;
+
+  function sendOTP() {
+    const phone = document.getElementById('phone').value;
+    const appVerifier = new firebase.auth.RecaptchaVerifier('login', {
+      size: 'invisible'
+    });
+
+    auth.signInWithPhoneNumber(phone, appVerifier)
+      .then(res => confirmationResult = res);
+  }
+
+  function verifyOTP() {
+    const otp = document.getElementById('otp').value;
+    confirmationResult.confirm(otp).then(() => {
+      document.getElementById('login').style.display='none';
+      document.getElementById('app').style.display='block';
+      loadMessages();
+    });
+  }
+
+  function sendMsg() {
+    const text = document.getElementById('msg').value;
+    db.collection("messages").add({
+      text: text,
+      time: Date.now()
+    });
+    document.getElementById('msg').value='';
+  }
+
+  function loadMessages() {
+    db.collection("messages").orderBy("time")
+      .onSnapshot(snapshot => {
+        let chat = "";
+        snapshot.forEach(doc => {
+          chat += "<p>" + doc.data().text + "</p>";
+        });
+        document.getElementById('chat').innerHTML = chat;
+      });
+  }
 </script>
 
 </body>
