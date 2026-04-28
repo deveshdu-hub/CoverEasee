@@ -6,21 +6,44 @@
 <title>SatyaSaroj Foundation</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
 
-body{background:#f5f5f5;color:#333;}
+body{background:#f4f6f9;color:#333;}
 
-header{
-background:linear-gradient(45deg,#f4c542,#ffdd75);
-padding:30px;
+/ HERO SECTION /
+.hero{
+background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),
+url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac');
+background-size:cover;
+background-position:center;
+color:white;
 text-align:center;
+padding:60px 20px;
 }
 
-header h1{font-size:26px;}
-header p{margin-top:5px;}
+.hero img{
+width:100px;
+border-radius:50%;
+margin-bottom:15px;
+border:3px solid #fff;
+}
 
+.hero h1{font-size:28px;margin-bottom:10px;}
+.hero p{margin-bottom:10px;font-size:14px;}
+
+.hero button{
+margin-top:10px;
+padding:12px 20px;
+background:#f4c542;
+border:none;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
+}
+
+/ NAV /
 nav{
-background:#222;
+background:#111;
 padding:10px;
 text-align:center;
 }
@@ -32,8 +55,7 @@ text-decoration:none;
 font-size:14px;
 }
 
-nav a:hover{color:#f4c542;}
-
+/ CONTENT /
 .container{padding:15px;}
 
 .card{
@@ -66,26 +88,28 @@ padding:10px;
 border-radius:5px;
 font-weight:bold;
 cursor:pointer;
+width:100%;
 }
 
+/ FOOTER /
 footer{
-background:#222;
+background:#111;
 color:#fff;
 text-align:center;
-padding:10px;
+padding:12px;
 margin-top:20px;
 }
 
+/ WHATSAPP */
 .whatsapp{
 position:fixed;
 bottom:15px;
 right:15px;
 background:#25D366;
 color:#fff;
-padding:12px;
+padding:14px;
 border-radius:50%;
 text-decoration:none;
-font-size:18px;
 }
 </style>
 
@@ -93,12 +117,21 @@ font-size:18px;
 
 <body>
 
-<header>
-<h1>SatyaSaroj Foundation</h1>
-<p>NGO | Gonda, India</p>
-<p>Working for Social Welfare & Development</p>
-</header>
+<!-- 🔥 HERO SECTION -->
+<div class="hero">
 
+<img src="logo.png">
+
+<h1>SatyaSaroj Foundation</h1>
+
+<p>NGO | Gonda, India</p>
+<p>Working for Social Welfare & Community Development</p>
+
+<button onclick="scrollToDonate()">Donate Now</button>
+
+</div>
+
+<!-- NAV -->
 <nav>
 <a href="#about">About</a>
 <a href="#details">Details</a>
@@ -112,70 +145,51 @@ font-size:18px;
 <div class="card" id="about">
 <h2>About Us</h2>
 <p>
-SatyaSaroj Foundation is a registered NGO dedicated to social welfare,
-education support, and community development. We actively work for
-uplifting society through various programs and initiatives.
+SatyaSaroj Foundation is a registered NGO working for social welfare,
+education and community upliftment.
 </p>
 </div>
 
 <div class="card" id="details">
 <h2>Organisation Details</h2>
-<p><b>Name:</b> SATYASAROJ FOUNDATION</p>
 <p><b>CIN:</b> U85300UP2020NPL127686</p>
-<p><b>Type:</b> Private NGO</p>
 <p><b>Incorporation:</b> 05/03/2020</p>
-<p><b>ROC:</b> Kanpur</p>
 <p><b>PAN:</b> AAECF0431D</p>
 <p><b>Status:</b> Active</p>
 
 <p><b>Address:</b><br>
-C/O Vishnu Narayan Srivastava,<br>
-Chitransh Nagar, Fatehpur,<br>
-UP - 212601
+Fatehpur, Uttar Pradesh
 </p>
 </div>
 
 <div class="card" id="activities">
-<h2>Our Activities</h2>
+<h2>Activities</h2>
 <ul>
 <li>Social welfare programs</li>
-<li>Education & support initiatives</li>
+<li>Education support</li>
 <li>CSR activities</li>
 <li>Health camps</li>
-<li>Pratibha Samman Samaroh</li>
 </ul>
 
-<p>
-✔ Income Tax Exemption: 12A & 80G  
-✔ CSR Collaboration Available  
-</p>
+<p>✔ 12A & 80G Certified</p>
 </div>
 
 <div class="card" id="gallery">
 <h2>Gallery</h2>
 
 <div class="gallery">
-<img src="https://via.placeholder.com/300x200">
-<img src="https://via.placeholder.com/300x200">
-<img src="https://via.placeholder.com/300x200">
-<img src="https://via.placeholder.com/300x200">
+<img src="img1.jpg">
+<img src="img2.jpg">
+<img src="img3.jpg">
+<img src="img4.jpg">
 </div>
-
-<p style="margin-top:10px;">(Replace with your NGO photos)</p>
 
 </div>
 
 <div class="card" id="donate">
 <h2>Support / Donate</h2>
-<p>Support our mission to help society.</p>
+<p>Help us make a difference</p>
 
-<ul>
-<li>✔ CSR Partnership</li>
-<li>✔ Tax Benefits (80G)</li>
-<li>✔ Transparent Work</li>
-</ul>
-
-<br>
 <button onclick="donate()">Donate Now</button>
 
 </div>
@@ -184,14 +198,17 @@ UP - 212601
 
 <footer>
 <p>© 2026 SatyaSaroj Foundation</p>
-<p>Instagram: @satyasarojfoundation</p>
 </footer>
 
 <a class="whatsapp" href="https://wa.me/919999999999">💬</a>
 
 <script>
 function donate(){
-alert("Contact us for donation / CSR activities");
+alert("Contact us for donation");
+}
+
+function scrollToDonate(){
+document.getElementById("donate").scrollIntoView({behavior:'smooth'});
 }
 </script>
 
